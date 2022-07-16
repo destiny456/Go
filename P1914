@@ -1,0 +1,25 @@
+package main
+
+import (
+	"fmt"
+)
+
+func main() {
+	var n int
+	var c string
+	fmt.Scanln(&n)
+	fmt.Scanln(&c)
+	if n >= 26 {
+		n -= 26
+	}
+	for i := 0; i < len(c); i++ {
+		if int(c[i])+n > 122 {
+			str := string(int(c[i]) + n - 26)
+			fmt.Print(str)
+		} else {
+			str := string(int(c[i]) + n)
+			fmt.Print(str)
+		}
+
+	}
+}
