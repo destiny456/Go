@@ -15,9 +15,7 @@ func main() {
 	equal := 1
 	f := 1
 	fmt.Scanln(&c)
-	for i, v := range c {
-
-		fmt.Printf("%d %c\n", i, v)
+	for _, v := range c {
 		if v == '+' {
 			b += num * equal * f
 			f = 1 //这里面equal不作初始化，是因为在后面遇到等于号以后，因为要把等号右边的全移到左边来，所以右边整体都要加上负号，该负号就由equal来表示
