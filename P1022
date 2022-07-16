@@ -1,0 +1,61 @@
+package main
+
+import (
+	"fmt"
+	"strconv"
+)
+
+func main() {
+
+	var c string
+	var a rune
+	k := 0
+	num := 0
+	b := 0
+	equal := 1
+	f := 1
+	fmt.Scanln(&c)
+	for i, v := range c {
+
+		fmt.Printf("%d %c\n", i, v)
+		if v == '+' {
+			b += num * equal * f
+			f = 1 //这里面equal不作初始化，是因为在后面遇到等于号以后，因为要把等号右边的全移到左边来，所以右边整体都要加上负号，该负号就由equal来表示
+			num = 0
+		}
+		if v == '-' {
+			b += num * equal * f
+			f = -1
+			num = 0
+		}
+		if v == '=' {
+			b += num * equal * f
+			num = 0
+			f = 1
+			equal = -1
+		}
+		if v >= '0' && v <= '9' {
+			value, _ := strconv.Atoi(string(v))
+			num = value + num*10
+		}
+		if v >= 'a' && v <= 'z' {
+
+			if num == 0 {
+				k += equal * f //若是遇到未知数前面的系数为1的话，因为不显示1这个系数，所以需要特判一下，
+			} else {
+				k += equal * f * num
+			}
+
+			num = 0
+			a = v
+
+		}
+
+	}
+
+	b += equal * f * num //加上最后一项常数
+	fmt.Println(b, k)
+	ans, _ := strconv.ParseFloat(fmt.Sprintf("%.3f", float64(-b)/float64(k)), 64)
+	fmt.Printf("%c=%.3f", a, ans)
+
+}
