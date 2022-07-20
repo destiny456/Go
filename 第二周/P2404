@@ -1,0 +1,44 @@
+package main
+
+import (
+	"fmt"
+)
+
+var a [20]int64
+var num int64
+
+func check(m, n int64) {
+	var j int64
+	for j = a[n-1]; j <= m; j++ {
+		if j < num {
+			a[n] = j
+			m -= j
+			if m == 0 {
+				print(n)
+			} else {
+				check(m, n+1)
+			}
+			m += j
+		}
+	}
+
+}
+
+func print(t int64) {
+	var i int64
+	for i = 1; i <= t-1; i++ {
+		fmt.Print(a[i])
+		fmt.Print("+")
+	}
+	fmt.Print(a[t])
+	fmt.Println()
+}
+
+func main() {
+	var i int64
+	fmt.Scanln(&num)
+	for i = 0; i < num; i++ {
+		a[i] = 1
+	}
+	check(num, 1)
+}
