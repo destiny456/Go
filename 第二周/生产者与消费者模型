@@ -1,0 +1,25 @@
+package main
+
+import (
+	"fmt"
+)
+
+func Producer(ch chan<- int) {
+	for i := 0; i < 10; i++ {
+		ch <- i * 2
+	}
+	close(ch)
+}
+
+func Consumer(ch <-chan int) {
+	for i := range ch {
+		fmt.Println("res=", i)
+	}
+}
+
+func main() {
+	ch := make(chan int, 10)
+	go Producer(ch)
+	Consumer(ch)
+
+}
