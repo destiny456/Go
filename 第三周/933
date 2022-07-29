@@ -1,0 +1,23 @@
+package main
+
+import (
+	"database/sql"
+	_ "github.com/go-sql-driver/mysql"   // _想当于init()初始化
+	"log"
+)
+
+func main() {
+	// root 用户名 1qa2ws3ed是密码  后边的书ip:port  gouse 库名
+	dsn := "root:1qa2ws3ed@tcp(127.0.0.1:3306)/gouse"
+	db, err := sql.Open("mysql", dsn)
+	if err != nil {
+		panic(err)
+	}
+	// ping是尝试连接MySQL数据库
+	
+	if err = db.Ping(); err != nil{
+		panic(err)
+	}
+	log.Fatalln("Mysql数据库连接成功")
+
+}
