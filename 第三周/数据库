@@ -1,0 +1,130 @@
+package main
+
+import (
+	"database/sql"
+	"fmt"
+	_ "github.com/go-sql-driver/mysql" // _想当于init()初始化
+)
+
+var db *sql.DB
+
+func check(err error) {
+	if err != nil {
+		fmt.Println(err)
+	}
+}
+
+type vendor struct {
+	ID   string `db:"vendorID"`
+	Name string `db:"vendorName"`
+}
+
+type repository struct {
+	ID       string `db:"repositoryID"`
+	Capacity int    `db:"repositoryCapacity"`
+}
+
+type clothes struct {
+	ID    string `db:"clothesID"`
+	Size  string `db:"clothesSize"`
+	Price int    `db:"clothesPrice`
+	Type  string `db:"clothesType"`
+}
+
+type vendorinformation struct {
+	Quality   string `db:"clothesQuality"`
+	clothesID string `db:"clothesID"`
+	vendorID  string `db:"vendorID"`
+}
+
+func main() {
+	// root 用户名 1qa2ws3ed是密码  后边的书ip:port  gouse 库名
+	dsn := "root:123456@tcp(127.0.0.1:3306)/clothe"
+	db, err := sql.Open("mysql", dsn)
+	if err != nil {
+		panic(err)
+	}
+	// ping是尝试连接MySQL数据库
+
+	if err = db.Ping(); err != nil {
+		panic(err)
+	}
+	fmt.Println("Mysql数据库连接成功")
+
+	//查询服装尺码为'S'价格在100以下的服装信息
+	rows1, err := db.Query("SELECT * FROM clothes WHERE `clothesSize` = 'S' AND `clothesPrice` <= 100")
+	check(err)
+	for rows1.Next() {
+		var s clothes
+		err = rows1.Scan(&s.ID, &s.Size, &s.Price, &s.Type)
+		check(err)
+		fmt.Println(s)
+	}
+	rows1.Close()
+
+	//查询仓库容量最大的仓库信息
+	rows2, err := db.Query("SELECT * FROM `repository` ORDER BY `repositoryCapacity` DESC LIMIT 1")
+	check(err)
+	for rows2.Next() {
+		var s repository
+		err = rows2.Scan(&s.ID, &s.Capacity)
+		check(err)
+		fmt.Println(s)
+	}
+	rows2.Close()
+
+	//查询A类服装的库存总量
+	rows3, err := db.Query("SELECT COUNT(`clothesType`) FROM clothes WHERE `clothesType` = 'A'")
+	check(err)
+	for rows3.Next() {
+		var s clothes
+		err = rows3.Scan(&s.Type)
+		check(err)
+		fmt.Println(s.Type)
+	}
+	rows3.Close()
+
+	//查询服装编码以A开头的服装
+	rows4, err := db.Query("SELECT * FROM `clothes` WHERE `clothesID` LIKE 'A%'")
+	check(err)
+	for rows4.Next() {
+		var s clothes
+		err = rows4.Scan(&s.ID, &s.Size, &s.Price, &s.Type)
+		check(err)
+		fmt.Println(s)
+	}
+	rows4.Close()
+
+	//查询服装质量等级有不合格的供应商信息
+	rows5, err := db.Query("SELECT v.`vendorID`,`vendorName` FROM `vendorinformation` vf Inner JOIN `vendor` v ON vf.`vendorID` = v.`vendorID` WHERE `clothesQuality` = 'C'")
+	check(err)
+	for rows5.Next() {
+		var s2 vendor
+		err = rows5.Scan(&s2.ID, &s2.Name)
+		check(err)
+		fmt.Println(s2)
+	}
+	rows5.Close()
+
+	//更新提高S码的价格
+	db.Exec("UPDATE `clothes` SET `clothesPrice` = `clothesPrice` * 1.1 WHERE `clothesSize` = 'S'")
+	rows6, err := db.Query("SELECT * FROM clothes WHERE `clothesSize` = 'S'")
+	check(err)
+	for rows6.Next() {
+		var s clothes
+		err = rows6.Scan(&s.ID, &s.Size, &s.Price, &s.Type)
+		check(err)
+		fmt.Println(s)
+	}
+	rows6.Close()
+
+	//删除
+	db.Exec("DELETE FROM `vendorinformation` WHERE `clothesQuality` = 'C'")
+
+	//插入
+	db.Exec("INSERT INTO `clothes` (`clothesID`,`clothesSize`,`clothesPrice`,`clothesType`) VALUES ('B2001','M','50','B')")
+	db.Exec("INSERT INTO `repository`(`repositoryID`,`repositoryCapacity`) VALUES ('六号仓库','260')")
+	db.Exec("INSERT INTO `vendor` (`vendorID`,`vendorName`) VALUES ('1008','合肥分店')")
+	db.Exec("INSERT INTO `vendorinformation`(`clothesQuality`,`clothesID`,`vendorID`) VALUES ('B','B2001','1008')")
+
+}
